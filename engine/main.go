@@ -70,9 +70,11 @@ func main() {
 		// register        -> permissions only (MCP added with `claude mcp add`)
 		// register --mcp  -> also writes the MCP server into ~/.claude.json
 		os.Exit(registerClaude(len(os.Args) > 2 && os.Args[2] == "--mcp"))
+	case "unregister":
+		os.Exit(unregisterClaude())
 	case "version":
 		fmt.Println(version)
 	default:
-		fmt.Println("usage: whatsapp-claude serve | mcp | status | unlink | register [--mcp] | version")
+		fmt.Println("usage: whatsapp-claude serve | mcp | status | unlink | register [--mcp] | unregister | version")
 	}
 }

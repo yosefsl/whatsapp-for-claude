@@ -107,3 +107,41 @@ func writeJSONFile(path string, v any) error {
 	}
 	return os.Rename(tmp, path)
 }
+
+// unregisterClaude undoes registerClaude: drops the MCP entry and the allow rules.
+func unregisterClaude() int {
+	home, _ := os.UserHomeDir()
+	path := filepath.Join(home, ".claude.json")
+	cfg := map[string]any{}
+	if err := readJSONFile(path, &cfg); err == nil {
+		if servers, ok := cfg["mcpServers"].(map[string]any); ok {
+			if _, ok := servers["whatsapp"]; ok {
+				delete(servers, "whatsapp")
+				_ = writeJSONFile(path, cfg)
+			}
+		}
+	}
+	path = filepath.Join(home, ".claude", "settings.json")
+	cfg = map[string]any{}
+	if err := readJSONFile(path, &cfg); err == nil {
+		if perms, ok := cfg["permissions"].(map[string]any); ok {
+			drop := map[string]bool{}
+			for _, t := range allowedTools {
+				drop[t] = true
+			}
+			allow, _ := perms["allow"].([]any)
+			kept := []any{}
+			for _, a := range allow {
+				if s, ok := a.(string); !ok || !drop[s] {
+					kept = append(kept, a)
+				}
+			}
+			if len(kept) != len(allow) {
+				perms["allow"] = kept
+				_ = writeJSONFile(path, cfg)
+			}
+		}
+	}
+	fmt.Println("removed WhatsApp entries from Claude Code settings")
+	return 0
+}

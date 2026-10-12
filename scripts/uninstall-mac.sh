@@ -9,6 +9,7 @@ if [ "${1:-}" != "--keep-data" ] && [ -x "$HOME_DIR/bin/whatsapp-claude" ]; then
   "$HOME_DIR/bin/whatsapp-claude" unlink || true   # removes the linked device from the phone too
 fi
 launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
+[ -x "$HOME_DIR/bin/whatsapp-claude" ] && "$HOME_DIR/bin/whatsapp-claude" unregister || true
 rm -f "$HOME/Library/LaunchAgents/$LABEL.plist"
 command -v claude >/dev/null 2>&1 && claude mcp remove --scope user whatsapp || true
 rm -rf "$HOME/.claude/skills/whatsapp"
